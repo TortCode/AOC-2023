@@ -10,6 +10,7 @@ def batched(iterable, n):
     while batch := tuple(islice(it, n)):
         yield batch
 
+# utilize namedtuple for automatic hashability
 class Range(namedtuple('Range', ['start', 'end'])):
     __slots__ = ()
     
@@ -21,8 +22,8 @@ class Range(namedtuple('Range', ['start', 'end'])):
 
     def __sub__(self, other: 'Range'):
         """assymetric difference"""
-        left_split = Range(self.start, other.start-1)
-        right_split = Range(other.end+1, self.end)
+        left_split = Range(self.start, min(self.end, other.start-1))
+        right_split = Range(max(self.start, other.end+1), self.end)
         return left_split, right_split
     
     def __rshift__(self, v: int):
@@ -35,6 +36,8 @@ class Range(namedtuple('Range', ['start', 'end'])):
     
     @property
     def length(self):
+        if self.empty:
+            return 0
         return self.end - self.start + 1
 
     def __repr__(self) -> str:
@@ -80,45 +83,46 @@ def transform(inputs: set[Range], mapping_name: str) -> set[Range]:
             # add shifted part to outputs
             outputs.add(overlap >> (dest - src))
 
+    # union with the unchanged inputs
     outputs.update(inputs)
     return outputs
 
-def print_list(L):
+def print_set(L):
     for x in L:
         print(x)
 
 def main():
     seeds = get_seeds()
     print("SEEDS")
-    print_list(seeds)
+    print_set(seeds)
 
     soils = transform(seeds, "seed-to-soil")
     print("SOILS")
-    print_list(soils)
+    print_set(soils)
 
     fertilizers = transform(soils, "soil-to-fertilizer")
     print("FERTILIZERS")
-    print_list(fertilizers)
+    print_set(fertilizers)
 
     waters = transform(fertilizers, "fertilizer-to-water")
     print("WATERS")
-    print_list(waters)
+    print_set(waters)
 
     lights = transform(waters, "water-to-light")
     print("LIGHTS")
-    print_list(lights)
+    print_set(lights)
 
     temperatures = transform(lights, "light-to-temperature")
     print("TEMPERATURES")
-    print_list(temperatures)
+    print_set(temperatures)
     
     humidities = transform(temperatures, "temperature-to-humidity")
     print("HUMIDITIES")
-    print_list(humidities)
+    print_set(humidities)
 
     locations = transform(humidities, "humidity-to-location")
     print("LOCATIONS")
-    print_list(locations)
+    print_set(locations)
 
     print("LOWEST LOCATION", min(x.start for x in locations))
 
