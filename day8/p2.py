@@ -94,13 +94,12 @@ def get_node_map(fp):
     return node_map
 
 def cycle_find(x0: str, lrs: str, node_map: dict):
-    slow = Stepper(x0).advance()
-    fast = Stepper(x0).advance(2)
+    slow = Stepper(x0)
+    fast = Stepper(x0)
 
     #find k * length 
-    while slow != fast:
-        slow.advance()
-        fast.advance(2)
+    while slow.advance() != fast.advance(2):
+        pass
     
     # find start
     fast = Stepper(x0)
@@ -112,9 +111,8 @@ def cycle_find(x0: str, lrs: str, node_map: dict):
 
     # find length
     slow = fast.clone()
-    fast.advance()
-    while slow != fast:
-        fast.advance()
+    while slow != fast.advance():
+        pass 
     return start, fast.pos - slow.pos
 
 def generate_multi_indices(return_list, matrix, idx=0, cur_list=None):
